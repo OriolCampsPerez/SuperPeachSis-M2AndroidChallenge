@@ -1,7 +1,5 @@
 package helloandroid.ut3.challengeandroid;
 
-import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,8 +11,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.MediaPlayer;
-import android.provider.Settings;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -29,11 +25,12 @@ import helloandroid.ut3.challengeandroid.model.GameCharacter;
 import helloandroid.ut3.challengeandroid.model.Ghost;
 import helloandroid.ut3.challengeandroid.model.Obstacle;
 import helloandroid.ut3.challengeandroid.model.Wall;
+import helloandroid.ut3.challengeandroid.utils.ResourceFetcher;
 
 public class GameView extends SurfaceView implements
         SurfaceHolder.Callback, SensorEventListener {
-    private final double groundYLevel = 0.8;
-    private final double characterXLevel = 0.2;
+    private final double groundYLevel = 0.85;
+    private final double characterXLevel = 0.15;
     private GameThread thread;
     private GameCharacter character;
     private double screenWidth;
@@ -242,20 +239,21 @@ public class GameView extends SurfaceView implements
                     (float) screenHeight, paint);
             paint.setColor(character.color);
             canvas.drawRect(character.getRect(), paint);
+
+
+
+            canvas.drawBitmap(ResourceFetcher.getBackgroundBitmap(getContext()), null, new Rect(0, 0, (int) screenWidth, (int) screenHeight), null);
+            canvas.drawBitmap(character.getSprite(), null, character.getRect(), null);
+
             for (Obstacle obstacle : obstacles) {
                 if (!obstacle.isVisible()) {
                     continue;
                 }
-                paint = new Paint();
-                paint.setColor(obstacle.color);
-                canvas.drawRect(obstacle.getRect(), paint);
+                canvas.drawBitmap(obstacle.getSprite(), null, obstacle.getRect(), null);
             }
 
             for (Cloud cloud : myClouds) {
-
-                paint = new Paint();
-                paint.setColor(cloud.color);
-                canvas.drawRect(cloud.getRect(), paint);
+                canvas.drawBitmap(cloud.getSprite(), null, cloud.getRect(), null);
             }
         }
     }
@@ -304,7 +302,7 @@ public class GameView extends SurfaceView implements
         this.screenWidth = getHolder().getSurfaceFrame().width();
         this.screenHeight = getHolder().getSurfaceFrame().height();
         character = new GameCharacter((int) (this.screenWidth * this.characterXLevel),
-                (int) (this.screenHeight * this.groundYLevel));
+                (int) (this.screenHeight * this.groundYLevel), ResourceFetcher.getGameCharacterBitmap(getContext()));
         thread.setRunning(true);
         thread.start();
         if (accelerometer != null) {
@@ -342,13 +340,13 @@ public class GameView extends SurfaceView implements
         int screenWidthObstacle = (int) (screenWidth * 1.1);
         int screenHeightObstacle = (int) (screenHeight * groundYLevel);
         if (randomNumber < 0.33) {
-            this.addObstacle(new Wall(screenWidthObstacle, screenHeightObstacle));
+            this.addObstacle(new Wall(screenWidthObstacle, screenHeightObstacle, ResourceFetcher.getWallsBitmap(getContext())));
         } else if (randomNumber < 0.66) {
-            Ghost ghost = new Ghost(screenWidthObstacle, screenHeightObstacle);
+            Ghost ghost = new Ghost(screenWidthObstacle, screenHeightObstacle, ResourceFetcher.getGhostsBitmap(getContext()));
             ghost.setVisible(!isDark);
             this.addObstacle(ghost);
         } else {
-            this.addObstacle(new Enemy(screenWidthObstacle, screenHeightObstacle));
+            this.addObstacle(new Enemy(screenWidthObstacle, screenHeightObstacle, ResourceFetcher.getEnemiesBitmap(getContext())));
         }
     }
 
@@ -364,7 +362,7 @@ public class GameView extends SurfaceView implements
         int randomInt = random.nextInt(200) + 80; // Generates a number between 0 and 100, then add 50
 
         if (randomNumber < 0.01) {
-            this.myClouds.add(new Cloud(screenWidthObstacle, randomInt));
+            this.myClouds.add(new Cloud(screenWidthObstacle, randomInt, ResourceFetcher.getCloudsBitmap(getContext())));
         }
 
     }

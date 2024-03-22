@@ -1,9 +1,13 @@
 package helloandroid.ut3.challengeandroid.model;
 
+import android.graphics.Bitmap;
+
+import java.util.List;
+
 import android.graphics.Color;
 
 public class GameCharacter extends Asset {
-
+    public Bitmap sprite;
     private static final double JUMP_AMPLITUDE = 30; // Adjust jump amplitude as needed
     private static final double JUMP_FREQUENCY = 2.0; // Adjust jump frequency as needed
     private static final int JUMP_DURATION = 1900; // Adjust jump duration as needed
@@ -13,7 +17,8 @@ public class GameCharacter extends Asset {
 
     private boolean isJumping;
 
-    public GameCharacter(int posX, int posY) {
+    public GameCharacter(int posX, int posY, List<Bitmap> srcList) {
+        super(srcList);
         this.posX = posX;
         this.posY = posY;
         this.width = BASE_WIDTH;
@@ -24,6 +29,8 @@ public class GameCharacter extends Asset {
         this.color = Color.BLACK;
         this.jumpStartTime = 0;
         this.isJumping = false;
+
+        this.sprite = srcList.get(0);
     }
 
     public boolean isColliding(Obstacle obstacle) {
@@ -43,7 +50,7 @@ public class GameCharacter extends Asset {
     public void update() {
         if (isJumping) {
             long elapsedTime = System.currentTimeMillis() - jumpStartTime;
-            if (elapsedTime < JUMP_DURATION/2) {
+            if (elapsedTime < JUMP_DURATION / 2) {
                 // Calculate jump progress based on elapsed time
                 double progress = (double) elapsedTime / JUMP_DURATION;
                 // Use quadratic curve for smooth jump effect
@@ -54,21 +61,24 @@ public class GameCharacter extends Asset {
                 double progress = (double) elapsedTime / JUMP_DURATION;
                 // Use quadratic curve for smooth jump effect
                 int jumpHeight = (int) (JUMP_AMPLITUDE * Math.sin(2 * Math.PI * JUMP_FREQUENCY * progress));
-                if(this.posY + jumpHeight< BASE_GROUND_Y) {
+                if (this.posY + jumpHeight < BASE_GROUND_Y) {
                     this.posY = (int) (this.posY + jumpHeight);
-                }
-                else {
+                } else {
                     jumpStartTime = 0;
                     isJumping = false;
                     this.posY = BASE_GROUND_Y;
                 }
 
-            }
-            else {
+            } else {
                 jumpStartTime = 0;
                 isJumping = false;
                 this.posY = BASE_GROUND_Y;
             }
         }
+    }
+
+    @Override
+    public Bitmap getSprite() {
+        return this.sprite;
     }
 }
