@@ -22,6 +22,9 @@ public class GameView extends SurfaceView implements
     private double screenWidth;
     private double screenHeight;
 
+    private int gameStage = 0;
+
+    private int nbEnemy = 0 ;
 
 
     private int randomIntervalGenerated = 20;
@@ -76,6 +79,14 @@ public class GameView extends SurfaceView implements
                 this.randomIntervalGenerated = random.nextInt(max - min + 1) + min;
 
                 this.count = 0;
+                this.nbEnemy++;
+
+                if(this.nbEnemy%5 == 0) {
+                    this.gameStage+=1;
+
+                    Obstacle.setSpeed(Obstacle.getSpeed()+gameStage);
+                }
+
 
             }
             obstacles.forEach(Obstacle::update);
