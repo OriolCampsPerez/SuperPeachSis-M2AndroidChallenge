@@ -25,7 +25,7 @@ public abstract class ResourceFetcher {
 
     public static List<Bitmap> getGameCharacterBitmap (Context context) {
         List<Bitmap> resList = new ArrayList<>();
-        resList.add(convertToBitmap(R.drawable.maincharacter, context));
+        resList.add(convertToBitmap(R.drawable.mainchar, context));
         return resList;
     }
 
@@ -40,11 +40,13 @@ public abstract class ResourceFetcher {
 
     public static List<Bitmap> getWallsBitmap (Context context) {
         List<Bitmap> resList = new ArrayList<>();
-        // TODO: Add wall images
+        resList.add(convertToBitmap(R.drawable.mushroomwall1, context));
+        resList.add(convertToBitmap(R.drawable.mushroomwall2, context));
         return resList;
     }
 
     public static Bitmap getBackgroundBitmap(Context context) {
-        return convertToBitmap(R.drawable.highbackground, context);
+        return convertToBitmap(R.drawable.background, context);
     }
+
 }

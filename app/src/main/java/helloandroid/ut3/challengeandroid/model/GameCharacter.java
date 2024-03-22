@@ -75,6 +75,6 @@ public class GameCharacter extends Asset {
 
     @Override
     public Bitmap getSprite() {
-        return null;
+        return this.sprite;
     }
 }

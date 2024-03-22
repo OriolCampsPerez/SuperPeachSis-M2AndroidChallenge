@@ -1,7 +1,5 @@
 package helloandroid.ut3.challengeandroid;
 
-import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -17,7 +15,6 @@ import android.view.SurfaceView;
 import java.util.ArrayList;
 import java.util.Random;
 
-import helloandroid.ut3.challengeandroid.model.Asset;
 import helloandroid.ut3.challengeandroid.model.Enemy;
 import helloandroid.ut3.challengeandroid.model.GameCharacter;
 import helloandroid.ut3.challengeandroid.model.Ghost;
@@ -27,8 +24,8 @@ import helloandroid.ut3.challengeandroid.utils.ResourceFetcher;
 
 public class GameView extends SurfaceView implements
         SurfaceHolder.Callback, SensorEventListener {
-    private final double groundYLevel = 0.8;
-    private final double characterXLevel = 0.2;
+    private final double groundYLevel = 0.85;
+    private final double characterXLevel = 0.15;
     private GameThread thread;
     private GameCharacter character;
     private double screenWidth;
@@ -92,26 +89,17 @@ public class GameView extends SurfaceView implements
     public void draw(Canvas canvas) {
         super.draw(canvas);
         if (canvas != null) {
-            canvas.drawColor(Color.GRAY);
-            Paint paint = new Paint();
-            paint.setColor(Color.GREEN);
-            canvas.drawRect(0, (float) ((screenHeight * groundYLevel) - (Asset.BASE_WIDTH / 2)),
-                    (float) screenWidth,
-                    (float) screenHeight, paint);
-            Rect rectTopBackground = new Rect(0, 0, (int) screenWidth, (int) (screenHeight * groundYLevel + (Asset.BASE_WIDTH / 2)));
-            Rect rectBotBackground = new Rect(0, (int) ((screenHeight * groundYLevel) + (Asset.BASE_WIDTH / 2)), (int) screenWidth, (int) screenHeight);
-            canvas.drawBitmap(ResourceFetcher.getBackgroundBitmap(getContext()), null, rectTopBackground, null);
-            canvas.drawRect(rectBotBackground, paint);
 
-            paint.setColor(character.color);
-            canvas.drawRect(character.getRect(), paint);
+
+
+            canvas.drawBitmap(ResourceFetcher.getBackgroundBitmap(getContext()), null, new Rect(0, 0, (int) screenWidth, (int) screenHeight), null);
+            canvas.drawBitmap(character.getSprite(), null, character.getRect(), null);
+
             for (Obstacle obstacle : obstacles) {
                 if (!obstacle.isVisible()) {
                     continue;
                 }
-                paint = new Paint();
-                paint.setColor(obstacle.color);
-                canvas.drawBitmap(obstacle.getSprite(), null, obstacle.getRect(), paint);
+                canvas.drawBitmap(obstacle.getSprite(), null, obstacle.getRect(), null);
             }
         }
     }
@@ -128,7 +116,7 @@ public class GameView extends SurfaceView implements
                 this.count = 0;
                 this.nbEnemy++;
             }
-                if (this.isColliding()) {
+            if (this.isColliding()) {
                 // this.thread.setRunning(false);
             }
             this.character.update();

@@ -27,6 +27,7 @@ public class MainActivity extends Activity {
         editor.apply();
 
         setContentView(new GameView(this));
+
     }
 
 }

@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Ghost extends Obstacle {
     public Ghost(int posX, int posY, List<Bitmap> srcList) {
-        super(BASE_WIDTH, BASE_WIDTH * 2, posX, posY, srcList);
+        super((int) (BASE_WIDTH * 1.2), (int) (BASE_WIDTH * 1.2), posX, posY, srcList);
         this.color = 0xFF00FFFF;
     }
 }

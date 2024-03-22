@@ -7,7 +7,7 @@ import java.util.List;
 
 public abstract class Asset {
 
-    public static final int BASE_WIDTH = 100;
+    public static final int BASE_WIDTH = 220;
 
     public int posX;
     public int posY;
@@ -21,10 +21,18 @@ public abstract class Asset {
         this.srcList = srcList;
     }
 
-    public Rect getRect() { // Used to display the asset on the screen
-        return new Rect(this.posX, this.posY, this.posX + this.width, this.posY - this.height);
+    /**
+     * Used to display the asset on the screen
+     *
+     * @return the Rect
+     */
+    public Rect getRect() {
+        return new Rect(this.posX, this.posY - this.height, this.posX + this.width, this.posY);
     }
 
-    public abstract Bitmap getSprite(); // Used to display the asset sprite on the screen
-
+    /**
+     * Used to display the asset sprite on the screen
+     * @return the Bitmap Sprite
+     */
+    public abstract Bitmap getSprite();
 }
