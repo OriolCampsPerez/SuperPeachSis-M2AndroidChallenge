@@ -11,6 +11,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -19,31 +20,45 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import helloandroid.ut3.challengeandroid.model.Asset;
+import helloandroid.ut3.challengeandroid.model.Cloud;
 import helloandroid.ut3.challengeandroid.model.Enemy;
 import helloandroid.ut3.challengeandroid.model.GameCharacter;
 import helloandroid.ut3.challengeandroid.model.Ghost;
 import helloandroid.ut3.challengeandroid.model.Obstacle;
 import helloandroid.ut3.challengeandroid.model.Wall;
+import helloandroid.ut3.challengeandroid.utils.ResourceFetcher;
 
 public class GameView extends SurfaceView implements
         SurfaceHolder.Callback, SensorEventListener {
     private static final float SHAKE_THRESHOLD = 3.0f; // Adjust this threshold as needed
-    private final double groundYLevel = 0.8;
-    private final double characterXLevel = 0.2;
+    private final double groundYLevel = 0.85;
+    private final double characterXLevel = 0.15;
     private GameThread thread;
     private GameCharacter character;
     private double screenWidth;
     private double screenHeight;
     private SensorManager sensorManager;
     private Sensor accelerometer;
+
+
+    private static final float SHAKE_THRESHOLD = 3.0f; // Adjust this threshold as needed
     private long lastShakeTime;
 
+    private MediaPlayer swordMediaPlayer;
+
+    private MediaPlayer musicPlayer;
+
+    private MediaPlayer gameOver;
+
     private int gameStage = 0;
+    Paint linePaint ;
+
 
     private int nbEnemy = 0;
 
     private Paint paint;
 
+    private int lineAlpha = 254;
 
     private PointF startPoint = new PointF();
 
@@ -57,6 +72,9 @@ public class GameView extends SurfaceView implements
     private int countForAddObstacle = 0;
     private ArrayList<Obstacle> obstacles = new ArrayList<>();
 
+
+    private ArrayList<Cloud> myClouds = new ArrayList<>();
+
     private boolean isDark = false;
 
     public GameView(Context context) {
@@ -64,6 +82,27 @@ public class GameView extends SurfaceView implements
         getHolder().addCallback(this);
         thread = new GameThread(getHolder(), this);
         setFocusable(true);
+        linePaint = new Paint();
+
+        swordMediaPlayer = MediaPlayer.create(this.getContext(), R.raw.sword_sound);
+
+        musicPlayer = MediaPlayer.create(this.getContext(), R.raw.lade);
+        musicPlayer.start();
+
+
+        gameOver = MediaPlayer.create(this.getContext(), R.raw.gameover);
+
+        musicPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                musicPlayer.seekTo(0); // Reset to start of the audio file
+                musicPlayer.start(); // Start playback again
+            }
+        });
+
+
+        linePaint.setStrokeWidth(5);
+        linePaint.setStyle(Paint.Style.STROKE);
 
         this.sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager != null) {
@@ -99,6 +138,21 @@ public class GameView extends SurfaceView implements
     }
 
 
+    private void playSound() {
+        if (swordMediaPlayer != null) {
+            swordMediaPlayer.start();
+        }
+    }
+
+    private void stopSound() {
+        if (swordMediaPlayer != null) {
+            swordMediaPlayer.stop();
+        }
+    }
+
+
+
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getActionMasked();
@@ -106,14 +160,16 @@ public class GameView extends SurfaceView implements
             case MotionEvent.ACTION_DOWN:
                 startPoint.set(event.getX(), event.getY());
 
+                swordMediaPlayer.seekTo(0); // Reset to start of the audio file
+
                 break;
             case MotionEvent.ACTION_MOVE:
                 endPoint.set(event.getX(), event.getY());
-                invalidate();
+
                 break;
             case MotionEvent.ACTION_UP:
                 endPoint.set(event.getX(), event.getY());
-
+                playSound();
                 markObstacleForDestruction();
                 break;
         }
@@ -147,22 +203,33 @@ public class GameView extends SurfaceView implements
         if (canvas != null) {
 
 
-            canvas.drawColor(Color.GRAY);
+            canvas.drawColor(Color.rgb(50,50,130));
             drawScore(canvas);
             Paint paint = new Paint();
             paint.setColor(Color.GREEN);
+
+            canvas.drawLine(startPoint.x, startPoint.y, endPoint.x, endPoint.y, linePaint);
+
             canvas.drawRect(0, (float) ((screenHeight * groundYLevel) - (Asset.BASE_WIDTH / 2)),
                     (float) screenWidth,
                     (float) screenHeight, paint);
             paint.setColor(character.color);
             canvas.drawRect(character.getRect(), paint);
+
+
+
+            canvas.drawBitmap(ResourceFetcher.getBackgroundBitmap(getContext()), null, new Rect(0, 0, (int) screenWidth, (int) screenHeight), null);
+            canvas.drawBitmap(character.getSprite(), null, character.getRect(), null);
+
             for (Obstacle obstacle : obstacles) {
                 if (!obstacle.isVisible()) {
                     continue;
                 }
-                paint = new Paint();
-                paint.setColor(obstacle.color);
-                canvas.drawRect(obstacle.getRect(), paint);
+                canvas.drawBitmap(obstacle.getSprite(), null, obstacle.getRect(), null);
+            }
+
+            for (Cloud cloud : myClouds) {
+                canvas.drawBitmap(cloud.getSprite(), null, cloud.getRect(), null);
             }
         }
     }
@@ -180,6 +247,8 @@ public class GameView extends SurfaceView implements
                 }
             }
             this.obstacles = obstaclesInScreen;
+            this.updateClouds();
+
             if (this.countForAddObstacle % this.randomIntervalGenerated == 0) {
                 this.updateObstacles();
                 this.updateRandomIntervalGenerated();
@@ -189,12 +258,15 @@ public class GameView extends SurfaceView implements
             }
             if (this.isColliding()) {
                 this.thread.setRunning(false);
+                musicPlayer.stop();
+                gameOver.start();
                 Intent intent = new Intent(getContext(), GameOver.class);
                 intent.putExtra("score", this.count);
                 getContext().startActivity(intent);
             }
             this.character.update();
             obstacles.forEach(Obstacle::update);
+            myClouds.forEach(Cloud::update);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -206,7 +278,7 @@ public class GameView extends SurfaceView implements
         this.screenWidth = getHolder().getSurfaceFrame().width();
         this.screenHeight = getHolder().getSurfaceFrame().height();
         character = new GameCharacter((int) (this.screenWidth * this.characterXLevel),
-                (int) (this.screenHeight * this.groundYLevel));
+                (int) (this.screenHeight * this.groundYLevel), ResourceFetcher.getGameCharacterBitmap(getContext()));
         thread.setRunning(true);
         thread.start();
         if (accelerometer != null) {
@@ -235,6 +307,8 @@ public class GameView extends SurfaceView implements
         this.obstacles.add(obstacle);
     }
 
+
+
     public void updateObstacles() {
         Random random = new Random();
 
@@ -242,15 +316,35 @@ public class GameView extends SurfaceView implements
         int screenWidthObstacle = (int) (screenWidth * 1.1);
         int screenHeightObstacle = (int) (screenHeight * groundYLevel);
         if (randomNumber < 0.33) {
-            this.addObstacle(new Wall(screenWidthObstacle, screenHeightObstacle));
+            this.addObstacle(new Wall(screenWidthObstacle, screenHeightObstacle, ResourceFetcher.getWallsBitmap(getContext())));
         } else if (randomNumber < 0.66) {
-            Ghost ghost = new Ghost(screenWidthObstacle, screenHeightObstacle);
+            Ghost ghost = new Ghost(screenWidthObstacle, screenHeightObstacle, ResourceFetcher.getGhostsBitmap(getContext()));
             ghost.setVisible(!isDark);
             this.addObstacle(ghost);
         } else {
-            this.addObstacle(new Enemy(screenWidthObstacle, screenHeightObstacle));
+            this.addObstacle(new Enemy(screenWidthObstacle, screenHeightObstacle, ResourceFetcher.getEnemiesBitmap(getContext())));
         }
     }
+
+
+    public void updateClouds() {
+        Random random = new Random();
+
+        double randomNumber = random.nextDouble();
+        int screenWidthObstacle = (int) (screenWidth * 1.1);
+        int screenHeightObstacle = (int) (screenHeight * groundYLevel);
+
+        // Generate a random number between 50 and 150
+        int randomInt = random.nextInt(200) + 80; // Generates a number between 0 and 100, then add 50
+
+        if (randomNumber < 0.01) {
+            this.myClouds.add(new Cloud(screenWidthObstacle, randomInt, ResourceFetcher.getCloudsBitmap(getContext())));
+        }
+
+    }
+
+
+
 
     public void updateRandomIntervalGenerated() {
         int min = 40;
