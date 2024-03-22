@@ -4,6 +4,8 @@ import android.graphics.Rect;
 
 public abstract class Obstacle extends Asset {
 
+    private static int speed = 30;
+
     public Obstacle(int width, int height, int posX, int posY) {
         this.width = width;
         this.height = height;
@@ -11,6 +13,14 @@ public abstract class Obstacle extends Asset {
         this.posY = posY;
     }
     public void update() {
-        this.posX -= 30;
+        this.posX -= speed;
+    }
+
+    public static int getSpeed() {
+        return speed;
+    }
+
+    public static void setSpeed(int speed) {
+        Obstacle.speed = speed;
     }
 }
