@@ -1,10 +1,15 @@
 package helloandroid.ut3.challengeandroid.model;
 
+import android.graphics.Bitmap;
+
+import java.util.List;
+
 public abstract class Obstacle extends Asset {
 
     private static int speed = 20;
 
-    public Obstacle(int width, int height, int posX, int posY) {
+    public Obstacle(int width, int height, int posX, int posY, List<Bitmap> srcList) {
+        super(srcList);
         this.width = width;
         this.height = height;
         this.posX = posX;
