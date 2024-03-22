@@ -206,13 +206,11 @@ public class GameView extends SurfaceView implements
             Paint paint = new Paint();
             paint.setColor(Color.GREEN);
 
-            canvas.drawLine(startPoint.x, startPoint.y, endPoint.x, endPoint.y, linePaint);
+            // canvas.drawLine(startPoint.x, startPoint.y, endPoint.x, endPoint.y, linePaint);
 
             canvas.drawRect(0, (float) ((screenHeight * groundYLevel) - (Asset.BASE_WIDTH / 2)),
                     (float) screenWidth,
                     (float) screenHeight, paint);
-            paint.setColor(character.color);
-            canvas.drawRect(character.getRect(), paint);
 
 
 

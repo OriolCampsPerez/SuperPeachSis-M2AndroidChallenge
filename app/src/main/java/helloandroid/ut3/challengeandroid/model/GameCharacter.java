@@ -8,9 +8,9 @@ import android.graphics.Color;
 
 public class GameCharacter extends Asset {
     public Bitmap sprite;
-    private static final double JUMP_AMPLITUDE = 40; // Adjust jump amplitude as needed
+    private static final double JUMP_AMPLITUDE = 30; // Adjust jump amplitude as needed
     private static final double JUMP_FREQUENCY = 2.0; // Adjust jump frequency as needed
-    private static final int JUMP_DURATION = 3400; // Adjust jump duration as needed
+    private static final int JUMP_DURATION = 4600; // Adjust jump duration as needed
 
     private static int BASE_GROUND_Y = 0;
     private long jumpStartTime;
@@ -34,6 +34,9 @@ public class GameCharacter extends Asset {
     }
 
     public boolean isColliding(Obstacle obstacle) {
+        if (!obstacle.isVisible()) {
+            return false;
+        }
         return this.getRect().intersect(obstacle.getRect());
     }
 

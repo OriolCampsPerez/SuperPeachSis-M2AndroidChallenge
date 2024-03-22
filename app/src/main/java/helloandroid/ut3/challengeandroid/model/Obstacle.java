@@ -9,7 +9,7 @@ public abstract class Obstacle extends Asset {
 
     private boolean visible = true;
 
-    private static int speed = 20;
+    private static int speed = 15;
 
     public Bitmap sprite;
 
