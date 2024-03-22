@@ -40,8 +40,6 @@ public class GameView extends SurfaceView implements
     private SensorManager sensorManager;
     private Sensor accelerometer;
 
-
-    private static final float SHAKE_THRESHOLD = 3.0f; // Adjust this threshold as needed
     private long lastShakeTime;
 
     private MediaPlayer swordMediaPlayer;
