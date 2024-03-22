@@ -6,10 +6,14 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PointF;
+import android.graphics.Rect;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -40,6 +44,17 @@ public class GameView extends SurfaceView implements
     private int gameStage = 0;
 
     private int nbEnemy = 0;
+
+    private Paint paint;
+
+
+    private PointF startPoint = new PointF();
+
+    private PointF endPoint = new PointF();
+
+
+
+
 
     private int randomIntervalGenerated = 20;
 
@@ -88,6 +103,40 @@ public class GameView extends SurfaceView implements
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
     }
 
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        int action = event.getActionMasked();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                startPoint.set(event.getX(), event.getY());
+
+                break;
+            case MotionEvent.ACTION_MOVE:
+                endPoint.set(event.getX(), event.getY());
+                invalidate();
+                break;
+            case MotionEvent.ACTION_UP:
+                endPoint.set(event.getX(), event.getY());
+
+                markObstacleForDestruction();
+                break;
+        }
+        return true;
+    }
+
+
+    private void markObstacleForDestruction() {
+        for (Obstacle obstacle : obstacles) {
+            Rect rec = obstacle.getRect();
+            if (obstacle instanceof Enemy && rec.intersects((int) startPoint.x, (int) startPoint.y, (int) endPoint.x, (int) endPoint.y)) {
+                ((Enemy) obstacle).setVisible(false);
+
+                break;
+            }
+        }
+    }
+
     public void drawScore(Canvas canvas) {
         Paint paint = new Paint();
         paint.setColor(Color.BLACK);
@@ -100,6 +149,8 @@ public class GameView extends SurfaceView implements
     public void draw(Canvas canvas) {
         super.draw(canvas);
         if (canvas != null) {
+
+
             canvas.drawColor(Color.GRAY);
             drawScore(canvas);
             Paint paint = new Paint();
@@ -119,6 +170,9 @@ public class GameView extends SurfaceView implements
             }
         }
     }
+
+
+
 
     public void update() {
         try {
