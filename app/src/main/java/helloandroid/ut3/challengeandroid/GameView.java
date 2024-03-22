@@ -10,6 +10,7 @@ import android.view.SurfaceView;
 import java.util.ArrayList;
 import java.util.Random;
 
+import helloandroid.ut3.challengeandroid.model.Asset;
 import helloandroid.ut3.challengeandroid.model.Enemy;
 import helloandroid.ut3.challengeandroid.model.GameCharacter;
 import helloandroid.ut3.challengeandroid.model.Ghost;
@@ -53,8 +54,11 @@ public class GameView extends SurfaceView implements
     public void draw(Canvas canvas) {
         super.draw(canvas);
         if (canvas != null) {
-            canvas.drawColor(Color.WHITE);
+            canvas.drawColor(Color.GRAY);
             Paint paint = new Paint();
+            paint.setColor(Color.GREEN);
+            canvas.drawRect(0, (float) ((screenHeight * groundYLevel) + (Asset.BASE_WIDTH/2)), (float) screenWidth,
+                    (float) screenHeight, paint);
             paint.setColor(character.color);
             canvas.drawRect(character.getRect(), paint);
             for (Obstacle obstacle : obstacles) {
@@ -155,7 +159,7 @@ public class GameView extends SurfaceView implements
     public void updateSpeed() {
         if (this.nbEnemy % 5 == 0) {
             this.gameStage += 1;
-            Obstacle.setSpeed(Obstacle.getSpeed() + gameStage);
+            Obstacle.setSpeed(Obstacle.getSpeed() + 1);
         }
     }
 
