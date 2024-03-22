@@ -49,11 +49,16 @@ public class GameView extends SurfaceView implements
 
     private MediaPlayer gameOver;
 
+    private MediaPlayer hitsound;
+
+
     private int gameStage = 0;
     Paint linePaint ;
 
 
     private int nbEnemy = 0;
+
+    private int lifeCount = 3;
 
     private Paint paint;
 
@@ -90,6 +95,14 @@ public class GameView extends SurfaceView implements
         musicPlayer.start();
 
 
+        hitsound = MediaPlayer.create(this.getContext(), R.raw.screaming);
+
+        hitsound.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                musicPlayer.start();
+            }
+        });
         gameOver = MediaPlayer.create(this.getContext(), R.raw.gameover);
 
         musicPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -135,7 +148,30 @@ public class GameView extends SurfaceView implements
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
     }
 
+    private void playHurtSound() {
+        // Check if the music player is playing
+        boolean isMusicPlaying = musicPlayer.isPlaying();
 
+        // Pause the music player if it's playing
+        if (isMusicPlaying) {
+            musicPlayer.pause();
+        }
+
+        // Play the hurt sound
+        hitsound.seekTo(0); // Reset to start of the audio file
+        hitsound.start();
+
+        // Set OnCompletionListener to resume music player after hurt sound completes
+        hitsound.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                // Resume the music player if it was playing before
+
+                    musicPlayer.start();
+
+            }
+        });
+    }
     private void playSound() {
         if (swordMediaPlayer != null) {
             swordMediaPlayer.start();
@@ -239,10 +275,18 @@ public class GameView extends SurfaceView implements
                 this.count = 0;
                 this.nbEnemy++;
             }
-            if (this.isColliding()) {
-                    musicPlayer.stop();
-                    gameOver.start();
-                // this.thread.setRunning(false);
+                if (this.isColliding()) {
+
+                    this.lifeCount-=1;
+                    if(lifeCount == 0) {
+                        musicPlayer.stop();
+                        gameOver.start();
+
+                        this.thread.setRunning(false);
+                    }
+                    else{
+                        hitsound.start();
+                    }
             }
             this.character.update();
             obstacles.forEach(Obstacle::update);
@@ -343,6 +387,7 @@ public class GameView extends SurfaceView implements
     private boolean isColliding() {
         for (Obstacle obstacle : obstacles) {
             if (character.isColliding(obstacle)) {
+                obstacles.remove(obstacle);
                 return true;
             }
         }
