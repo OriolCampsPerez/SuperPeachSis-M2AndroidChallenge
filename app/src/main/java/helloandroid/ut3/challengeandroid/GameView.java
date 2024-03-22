@@ -217,10 +217,7 @@ public class GameView extends SurfaceView implements
             }
 
             for (Cloud cloud : myClouds) {
-
-                paint = new Paint();
-                paint.setColor(cloud.color);
-                canvas.drawRect(cloud.getRect(), paint);
+                canvas.drawBitmap(cloud.getSprite(), null, cloud.getRect(), null);
             }
         }
     }
@@ -321,7 +318,7 @@ public class GameView extends SurfaceView implements
         int randomInt = random.nextInt(200) + 80; // Generates a number between 0 and 100, then add 50
 
         if (randomNumber < 0.01) {
-            this.myClouds.add(new Cloud(screenWidthObstacle, randomInt));
+            this.myClouds.add(new Cloud(screenWidthObstacle, randomInt, ResourceFetcher.getCloudsBitmap(getContext())));
         }
 
     }

@@ -49,4 +49,12 @@ public abstract class ResourceFetcher {
         return convertToBitmap(R.drawable.background, context);
     }
 
+    public static List<Bitmap> getCloudsBitmap(Context context) {
+        List<Bitmap> resList = new ArrayList<>();
+        resList.add(convertToBitmap(R.drawable.cloud1, context));
+        resList.add(convertToBitmap(R.drawable.cloud2, context));
+        resList.add(convertToBitmap(R.drawable.cloud3, context));
+        resList.add(convertToBitmap(R.drawable.cloud4, context));
+        return resList;
+    }
 }
