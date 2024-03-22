@@ -36,7 +36,6 @@ public class GameView extends SurfaceView implements
 
     private int count = 0;
     private ArrayList<Obstacle> obstacles = new ArrayList<>();
-    private boolean running = false;
 
     public GameView(Context context) {
         super(context);
@@ -81,6 +80,9 @@ public class GameView extends SurfaceView implements
                 this.count = 0;
                 this.nbEnemy++;
             }
+            if (this.isColliding()) {
+                // this.thread.setRunning(false);
+            }
             obstacles.forEach(Obstacle::update);
 
         } catch (Exception e) {
@@ -118,22 +120,6 @@ public class GameView extends SurfaceView implements
         this.obstacles.add(obstacle);
     }
 
-    public double getGroundYLevel() {
-        return groundYLevel;
-    }
-
-    public double getCharacterXLevel() {
-        return characterXLevel;
-    }
-
-    public double getScreenWidth() {
-        return screenWidth;
-    }
-
-    public double getScreenHeight() {
-        return screenHeight;
-    }
-
     public void updateObstacles() {
         Random random = new Random();
 
@@ -161,6 +147,15 @@ public class GameView extends SurfaceView implements
             this.gameStage += 1;
             Obstacle.setSpeed(Obstacle.getSpeed() + 1);
         }
+    }
+
+    private boolean isColliding() {
+        for (Obstacle obstacle : obstacles) {
+            if (character.isColliding(obstacle)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

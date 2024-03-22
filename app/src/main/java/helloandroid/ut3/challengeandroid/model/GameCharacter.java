@@ -8,4 +8,8 @@ public class GameCharacter extends Asset {
         this.height = BASE_WIDTH;
         this.color = 0xFF0000FF;
     }
+
+    public boolean isColliding(Obstacle obstacle) {
+       return this.getRect().intersect(obstacle.getRect());
+    }
 }
