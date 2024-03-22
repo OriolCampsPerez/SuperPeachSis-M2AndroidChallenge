@@ -50,6 +50,8 @@ public class GameView extends SurfaceView implements
 
     private MediaPlayer musicPlayer;
 
+    private MediaPlayer gameOver;
+
     private int gameStage = 0;
     Paint linePaint ;
 
@@ -89,6 +91,9 @@ public class GameView extends SurfaceView implements
 
         musicPlayer = MediaPlayer.create(this.getContext(), R.raw.lade);
         musicPlayer.start();
+
+
+        gameOver = MediaPlayer.create(this.getContext(), R.raw.gameover);
 
         musicPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
@@ -237,6 +242,8 @@ public class GameView extends SurfaceView implements
                 this.nbEnemy++;
             }
                 if (this.isColliding()) {
+                    musicPlayer.stop();
+                    gameOver.start();
                 // this.thread.setRunning(false);
             }
             this.character.update();
