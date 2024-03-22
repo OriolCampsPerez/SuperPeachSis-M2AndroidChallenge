@@ -7,6 +7,8 @@ import java.util.Random;
 
 public abstract class Obstacle extends Asset {
 
+    private boolean visible = true;
+
     private static int speed = 20;
 
     public Bitmap sprite;
@@ -36,5 +38,13 @@ public abstract class Obstacle extends Asset {
     @Override
     public Bitmap getSprite() {
         return this.sprite;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
     }
 }

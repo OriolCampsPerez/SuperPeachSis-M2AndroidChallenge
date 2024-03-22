@@ -11,8 +11,7 @@ import helloandroid.ut3.challengeandroid.R;
 
 public class Enemy extends Obstacle {
     public Enemy(int posX, int posY, List<Bitmap> srcList) {
-        super(BASE_WIDTH, BASE_WIDTH, posX, posY, srcList);
+        super(BASE_WIDTH, BASE_WIDTH * 3, posX, posY, srcList);
         this.color = 0xCC0000FF;
     }
-
 }

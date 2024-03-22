@@ -22,7 +22,7 @@ public abstract class Asset {
     }
 
     public Rect getRect() { // Used to display the asset on the screen
-        return new Rect(this.posX, this.posY, this.posX + this.width, this.posY + this.height);
+        return new Rect(this.posX, this.posY, this.posX + this.width, this.posY - this.height);
     }
 
     public abstract Bitmap getSprite(); // Used to display the asset sprite on the screen
