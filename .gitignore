@@ -22,3 +22,10 @@ build/
 /externalNativeBuild
 /local.properties
 /release
+
+# Built application files
+local.properties
+misc.xml
+
+# Signing files
+.keystore
