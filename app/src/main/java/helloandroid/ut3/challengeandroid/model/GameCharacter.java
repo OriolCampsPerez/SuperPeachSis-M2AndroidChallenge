@@ -8,9 +8,9 @@ import android.graphics.Color;
 
 public class GameCharacter extends Asset {
     public Bitmap sprite;
-    private static final double JUMP_AMPLITUDE = 30; // Adjust jump amplitude as needed
+    private static final double JUMP_AMPLITUDE = 40; // Adjust jump amplitude as needed
     private static final double JUMP_FREQUENCY = 2.0; // Adjust jump frequency as needed
-    private static final int JUMP_DURATION = 1900; // Adjust jump duration as needed
+    private static final int JUMP_DURATION = 3400; // Adjust jump duration as needed
 
     private static int BASE_GROUND_Y = 0;
     private long jumpStartTime;
@@ -21,7 +21,7 @@ public class GameCharacter extends Asset {
         super(srcList);
         this.posX = posX;
         this.posY = posY;
-        this.width = BASE_WIDTH;
+        this.width = BASE_WIDTH-40;
         this.height = BASE_WIDTH;
 
         BASE_GROUND_Y = posY;
