@@ -11,6 +11,6 @@ public abstract class Obstacle extends Asset {
         this.posY = posY;
     }
     public void update() {
-        this.posX -= 10;
+        this.posX -= 30;
     }
 }
