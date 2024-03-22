@@ -1,8 +1,7 @@
 package helloandroid.ut3.challengeandroid;
 
-import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -12,7 +11,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -29,16 +27,15 @@ import helloandroid.ut3.challengeandroid.model.Wall;
 
 public class GameView extends SurfaceView implements
         SurfaceHolder.Callback, SensorEventListener {
+    private static final float SHAKE_THRESHOLD = 3.0f; // Adjust this threshold as needed
     private final double groundYLevel = 0.8;
     private final double characterXLevel = 0.2;
     private GameThread thread;
     private GameCharacter character;
     private double screenWidth;
     private double screenHeight;
-
     private SensorManager sensorManager;
     private Sensor accelerometer;
-    private static final float SHAKE_THRESHOLD = 3.0f; // Adjust this threshold as needed
     private long lastShakeTime;
 
     private int gameStage = 0;
@@ -51,9 +48,6 @@ public class GameView extends SurfaceView implements
     private PointF startPoint = new PointF();
 
     private PointF endPoint = new PointF();
-
-
-
 
 
     private int randomIntervalGenerated = 20;
@@ -96,7 +90,8 @@ public class GameView extends SurfaceView implements
                 // Gérer les changements de précision si nécessaire
             }
         };
-        sensorManager.registerListener(lightSensorListener, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(lightSensorListener, lightSensor,
+                SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
@@ -129,7 +124,8 @@ public class GameView extends SurfaceView implements
     private void markObstacleForDestruction() {
         for (Obstacle obstacle : obstacles) {
             Rect rec = obstacle.getRect();
-            if (obstacle instanceof Enemy && rec.intersects((int) startPoint.x, (int) startPoint.y, (int) endPoint.x, (int) endPoint.y)) {
+            if (obstacle instanceof Enemy && rec.intersects((int) startPoint.x,
+                    (int) startPoint.y, (int) endPoint.x, (int) endPoint.y)) {
                 ((Enemy) obstacle).setVisible(false);
 
                 break;
@@ -172,8 +168,6 @@ public class GameView extends SurfaceView implements
     }
 
 
-
-
     public void update() {
         try {
             Thread.sleep(30);
@@ -193,8 +187,11 @@ public class GameView extends SurfaceView implements
                 this.countForAddObstacle = 0;
                 this.nbEnemy++;
             }
-                if (this.isColliding()) {
-                // this.thread.setRunning(false);
+            if (this.isColliding()) {
+                this.thread.setRunning(false);
+                Intent intent = new Intent(getContext(), GameOver.class);
+                intent.putExtra("score", this.count);
+                getContext().startActivity(intent);
             }
             this.character.update();
             obstacles.forEach(Obstacle::update);
@@ -287,7 +284,8 @@ public class GameView extends SurfaceView implements
                 float y = event.values[1];
                 float z = event.values[2];
 
-                double acceleration = Math.sqrt(x * x + y * y + z * z) - SensorManager.GRAVITY_EARTH;
+                double acceleration =
+                        Math.sqrt(x * x + y * y + z * z) - SensorManager.GRAVITY_EARTH;
                 if (acceleration > SHAKE_THRESHOLD) {
                     // Shake detected, call your method here
                     onShake();
