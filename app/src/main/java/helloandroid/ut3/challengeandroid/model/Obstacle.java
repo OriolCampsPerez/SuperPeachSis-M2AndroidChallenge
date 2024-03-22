@@ -1,10 +1,8 @@
 package helloandroid.ut3.challengeandroid.model;
 
-import android.graphics.Rect;
-
 public abstract class Obstacle extends Asset {
 
-    private static int speed = 30;
+    private static int speed = 20;
 
     public Obstacle(int width, int height, int posX, int posY) {
         this.width = width;

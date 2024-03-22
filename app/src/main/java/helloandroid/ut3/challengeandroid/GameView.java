@@ -10,8 +10,11 @@ import android.view.SurfaceView;
 import java.util.ArrayList;
 import java.util.Random;
 
+import helloandroid.ut3.challengeandroid.model.Enemy;
 import helloandroid.ut3.challengeandroid.model.GameCharacter;
+import helloandroid.ut3.challengeandroid.model.Ghost;
 import helloandroid.ut3.challengeandroid.model.Obstacle;
+import helloandroid.ut3.challengeandroid.model.Wall;
 
 public class GameView extends SurfaceView implements
         SurfaceHolder.Callback {
@@ -24,13 +27,13 @@ public class GameView extends SurfaceView implements
 
     private int gameStage = 0;
 
-    private int nbEnemy = 0 ;
+    private int nbEnemy = 0;
 
 
     private int randomIntervalGenerated = 20;
 
 
-    private int count= 0;
+    private int count = 0;
     private ArrayList<Obstacle> obstacles = new ArrayList<>();
     private boolean running = false;
 
@@ -66,28 +69,13 @@ public class GameView extends SurfaceView implements
     public void update() {
         try {
             Thread.sleep(30);
-            this.count ++ ;
-            // Generate a random integer between 0 and 100 (inclusive)
-            if(this.count%this.randomIntervalGenerated == 0) {
-                this.thread.calculGameLogic();
-
-                int min = 40;
-                int max = 100;
-                // Create a Random object
-                Random random = new Random();
-                // Generate a random integer between min (inclusive) and max (inclusive)
-                this.randomIntervalGenerated = random.nextInt(max - min + 1) + min;
-
+            this.count++;
+            if (this.count % this.randomIntervalGenerated == 0) {
+                this.updateObstacles();
+                this.updateRandomIntervalGenerated();
+                this.updateSpeed();
                 this.count = 0;
                 this.nbEnemy++;
-
-                if(this.nbEnemy%5 == 0) {
-                    this.gameStage+=1;
-
-                    Obstacle.setSpeed(Obstacle.getSpeed()+gameStage);
-                }
-
-
             }
             obstacles.forEach(Obstacle::update);
 
@@ -141,4 +129,34 @@ public class GameView extends SurfaceView implements
     public double getScreenHeight() {
         return screenHeight;
     }
+
+    public void updateObstacles() {
+        Random random = new Random();
+
+        double randomNumber = random.nextDouble();
+        int screenWidthObstacle = (int) (screenWidth * 1.1);
+        int screenHeightObstacle = (int) (screenHeight * groundYLevel);
+        if (randomNumber < 0.33) {
+            this.addObstacle(new Wall(screenWidthObstacle, screenHeightObstacle));
+        } else if (randomNumber < 0.66) {
+            this.addObstacle(new Ghost(screenWidthObstacle, screenHeightObstacle));
+        } else {
+            this.addObstacle(new Enemy(screenWidthObstacle, screenHeightObstacle));
+        }
+    }
+
+    public void updateRandomIntervalGenerated() {
+        int min = 40;
+        int max = 100;
+        Random random = new Random();
+        this.randomIntervalGenerated = random.nextInt(max - min + 1) + min;
+    }
+
+    public void updateSpeed() {
+        if (this.nbEnemy % 5 == 0) {
+            this.gameStage += 1;
+            Obstacle.setSpeed(Obstacle.getSpeed() + gameStage);
+        }
+    }
+
 }
