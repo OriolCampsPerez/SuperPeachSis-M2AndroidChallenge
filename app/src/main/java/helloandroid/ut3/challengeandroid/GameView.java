@@ -8,6 +8,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import helloandroid.ut3.challengeandroid.model.GameCharacter;
 import helloandroid.ut3.challengeandroid.model.Obstacle;
@@ -20,6 +21,13 @@ public class GameView extends SurfaceView implements
     private GameCharacter character;
     private double screenWidth;
     private double screenHeight;
+
+
+
+    private int randomIntervalGenerated = 20;
+
+
+    private int count= 0;
     private ArrayList<Obstacle> obstacles = new ArrayList<>();
     private boolean running = false;
 
@@ -54,8 +62,24 @@ public class GameView extends SurfaceView implements
 
     public void update() {
         try {
-            Thread.sleep(100);
+            Thread.sleep(30);
+            this.count ++ ;
+            // Generate a random integer between 0 and 100 (inclusive)
+            if(this.count%this.randomIntervalGenerated == 0) {
+                this.thread.calculGameLogic();
+
+                int min = 40;
+                int max = 100;
+                // Create a Random object
+                Random random = new Random();
+                // Generate a random integer between min (inclusive) and max (inclusive)
+                this.randomIntervalGenerated = random.nextInt(max - min + 1) + min;
+
+                this.count = 0;
+
+            }
             obstacles.forEach(Obstacle::update);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -87,4 +111,23 @@ public class GameView extends SurfaceView implements
     }
 
 
+    public void addObstacle(Obstacle obstacle) {
+        this.obstacles.add(obstacle);
+    }
+
+    public double getGroundYLevel() {
+        return groundYLevel;
+    }
+
+    public double getCharacterXLevel() {
+        return characterXLevel;
+    }
+
+    public double getScreenWidth() {
+        return screenWidth;
+    }
+
+    public double getScreenHeight() {
+        return screenHeight;
+    }
 }
