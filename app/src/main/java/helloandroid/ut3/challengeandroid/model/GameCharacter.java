@@ -34,9 +34,6 @@ public class GameCharacter extends Asset {
     }
 
     public boolean isColliding(Obstacle obstacle) {
-        if (!obstacle.isVisible()) {
-            return false;
-        }
         return this.getRect().intersect(obstacle.getRect());
     }
 

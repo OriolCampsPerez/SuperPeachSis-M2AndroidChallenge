@@ -1,6 +1,7 @@
 package helloandroid.ut3.challengeandroid;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -29,18 +30,16 @@ import helloandroid.ut3.challengeandroid.utils.ResourceFetcher;
 
 public class GameView extends SurfaceView implements
         SurfaceHolder.Callback, SensorEventListener {
+    private static final float SHAKE_THRESHOLD = 3.0f; // Adjust this threshold as needed
     private final double groundYLevel = 0.85;
     private final double characterXLevel = 0.15;
     private GameThread thread;
     private GameCharacter character;
     private double screenWidth;
     private double screenHeight;
-
     private SensorManager sensorManager;
     private Sensor accelerometer;
 
-
-    private static final float SHAKE_THRESHOLD = 3.0f; // Adjust this threshold as needed
     private long lastShakeTime;
 
     private MediaPlayer swordMediaPlayer;
@@ -49,16 +48,11 @@ public class GameView extends SurfaceView implements
 
     private MediaPlayer gameOver;
 
-    private MediaPlayer hitsound;
-
-
     private int gameStage = 0;
     Paint linePaint ;
 
 
     private int nbEnemy = 0;
-
-    private int lifeCount = 3;
 
     private Paint paint;
 
@@ -69,12 +63,11 @@ public class GameView extends SurfaceView implements
     private PointF endPoint = new PointF();
 
 
-
-
-
     private int randomIntervalGenerated = 20;
 
     private int count = 0;
+
+    private int countForAddObstacle = 0;
     private ArrayList<Obstacle> obstacles = new ArrayList<>();
 
 
@@ -95,14 +88,6 @@ public class GameView extends SurfaceView implements
         musicPlayer.start();
 
 
-        hitsound = MediaPlayer.create(this.getContext(), R.raw.screaming);
-
-        hitsound.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                musicPlayer.start();
-            }
-        });
         gameOver = MediaPlayer.create(this.getContext(), R.raw.gameover);
 
         musicPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -116,6 +101,7 @@ public class GameView extends SurfaceView implements
 
         linePaint.setStrokeWidth(5);
         linePaint.setStyle(Paint.Style.STROKE);
+
         this.sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager != null) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -141,37 +127,15 @@ public class GameView extends SurfaceView implements
                 // Gérer les changements de précision si nécessaire
             }
         };
-        sensorManager.registerListener(lightSensorListener, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(lightSensorListener, lightSensor,
+                SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
     }
 
-    private void playHurtSound() {
-        // Check if the music player is playing
-        boolean isMusicPlaying = musicPlayer.isPlaying();
 
-        // Pause the music player if it's playing
-        if (isMusicPlaying) {
-            musicPlayer.pause();
-        }
-
-        // Play the hurt sound
-        hitsound.seekTo(0); // Reset to start of the audio file
-        hitsound.start();
-
-        // Set OnCompletionListener to resume music player after hurt sound completes
-        hitsound.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                // Resume the music player if it was playing before
-
-                    musicPlayer.start();
-
-            }
-        });
-    }
     private void playSound() {
         if (swordMediaPlayer != null) {
             swordMediaPlayer.start();
@@ -214,12 +178,21 @@ public class GameView extends SurfaceView implements
     private void markObstacleForDestruction() {
         for (Obstacle obstacle : obstacles) {
             Rect rec = obstacle.getRect();
-            if (obstacle instanceof Enemy && rec.intersects((int) startPoint.x, (int) startPoint.y, (int) endPoint.x, (int) endPoint.y)) {
+            if (obstacle instanceof Enemy && rec.intersects((int) startPoint.x,
+                    (int) startPoint.y, (int) endPoint.x, (int) endPoint.y)) {
                 ((Enemy) obstacle).setVisible(false);
 
                 break;
             }
         }
+    }
+
+    public void drawScore(Canvas canvas) {
+        Paint paint = new Paint();
+        paint.setColor(Color.BLACK);
+        paint.setTextSize(50);
+        paint.setFakeBoldText(true);
+        canvas.drawText("Score: " + this.count, 50, 100, paint);
     }
 
     @Override
@@ -229,6 +202,7 @@ public class GameView extends SurfaceView implements
 
 
             canvas.drawColor(Color.rgb(50,50,130));
+            drawScore(canvas);
             Paint paint = new Paint();
             paint.setColor(Color.GREEN);
 
@@ -258,34 +232,34 @@ public class GameView extends SurfaceView implements
     }
 
 
-
-
     public void update() {
         try {
             Thread.sleep(30);
+            this.countForAddObstacle++;
             this.count++;
-            ArrayList<Obstacle> obstaclesToRemove = new ArrayList<>();
+            ArrayList<Obstacle> obstaclesInScreen = new ArrayList<>();
+            for (Obstacle obstacle : this.obstacles) {
+                if (obstacle.getRect().right > 0) {
+                    obstaclesInScreen.add(obstacle);
+                }
+            }
+            this.obstacles = obstaclesInScreen;
             this.updateClouds();
 
-            if (this.count % this.randomIntervalGenerated == 0) {
+            if (this.countForAddObstacle % this.randomIntervalGenerated == 0) {
                 this.updateObstacles();
                 this.updateRandomIntervalGenerated();
                 this.updateSpeed();
-                this.count = 0;
+                this.countForAddObstacle = 0;
                 this.nbEnemy++;
             }
-                if (this.isColliding()) {
-
-                    this.lifeCount-=1;
-                    if(lifeCount == 0) {
-                        musicPlayer.stop();
-                        gameOver.start();
-
-                        this.thread.setRunning(false);
-                    }
-                    else{
-                        hitsound.start();
-                    }
+            if (this.isColliding()) {
+                this.thread.setRunning(false);
+                musicPlayer.stop();
+                gameOver.start();
+                Intent intent = new Intent(getContext(), GameOver.class);
+                intent.putExtra("score", this.count);
+                getContext().startActivity(intent);
             }
             this.character.update();
             obstacles.forEach(Obstacle::update);
@@ -386,7 +360,6 @@ public class GameView extends SurfaceView implements
     private boolean isColliding() {
         for (Obstacle obstacle : obstacles) {
             if (character.isColliding(obstacle)) {
-                obstacles.remove(obstacle);
                 return true;
             }
         }
@@ -402,7 +375,8 @@ public class GameView extends SurfaceView implements
                 float y = event.values[1];
                 float z = event.values[2];
 
-                double acceleration = Math.sqrt(x * x + y * y + z * z) - SensorManager.GRAVITY_EARTH;
+                double acceleration =
+                        Math.sqrt(x * x + y * y + z * z) - SensorManager.GRAVITY_EARTH;
                 if (acceleration > SHAKE_THRESHOLD) {
                     // Shake detected, call your method here
                     onShake();

@@ -1,4 +1,4 @@
-package helloandroid.ut3.challengeandroid;
+package helloandroid.ut3.challengeandroid.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,6 +8,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
+
+import helloandroid.ut3.challengeandroid.GameView;
 
 public class MainActivity extends Activity {
 
@@ -31,5 +33,3 @@ public class MainActivity extends Activity {
     }
 
 }
-
-
