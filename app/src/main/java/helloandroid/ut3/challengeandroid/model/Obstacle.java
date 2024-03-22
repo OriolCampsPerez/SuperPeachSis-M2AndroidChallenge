@@ -21,4 +21,7 @@ public abstract class Obstacle extends Asset {
     public static void setSpeed(int speed) {
         Obstacle.speed = speed;
     }
+
+
+
 }

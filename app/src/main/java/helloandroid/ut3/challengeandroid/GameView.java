@@ -4,6 +4,10 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -18,7 +22,7 @@ import helloandroid.ut3.challengeandroid.model.Obstacle;
 import helloandroid.ut3.challengeandroid.model.Wall;
 
 public class GameView extends SurfaceView implements
-        SurfaceHolder.Callback {
+        SurfaceHolder.Callback, SensorEventListener {
     private final double groundYLevel = 0.6;
     private final double characterXLevel = 0.2;
     private GameThread thread;
@@ -26,13 +30,16 @@ public class GameView extends SurfaceView implements
     private double screenWidth;
     private double screenHeight;
 
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
+    private static final float SHAKE_THRESHOLD = 3.0f; // Adjust this threshold as needed
+    private long lastShakeTime;
+
     private int gameStage = 0;
 
     private int nbEnemy = 0;
 
-
     private int randomIntervalGenerated = 20;
-
 
     private int count = 0;
     private ArrayList<Obstacle> obstacles = new ArrayList<>();
@@ -41,6 +48,11 @@ public class GameView extends SurfaceView implements
         super(context);
         getHolder().addCallback(this);
         thread = new GameThread(getHolder(), this);
+        sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        if (sensorManager != null) {
+            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        }
+        lastShakeTime = System.currentTimeMillis();
 
         setFocusable(true);
     }
@@ -68,7 +80,6 @@ public class GameView extends SurfaceView implements
         }
     }
 
-
     public void update() {
         try {
             Thread.sleep(30);
@@ -80,16 +91,16 @@ public class GameView extends SurfaceView implements
                 this.count = 0;
                 this.nbEnemy++;
             }
-            if (this.isColliding()) {
+                if (this.isColliding()) {
                 // this.thread.setRunning(false);
             }
+            this.character.update();
             obstacles.forEach(Obstacle::update);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -99,6 +110,9 @@ public class GameView extends SurfaceView implements
                 (int) (this.screenHeight * this.groundYLevel));
         thread.setRunning(true);
         thread.start();
+        if (accelerometer != null) {
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        }
     }
 
     @Override
@@ -108,13 +122,15 @@ public class GameView extends SurfaceView implements
             try {
                 thread.setRunning(false);
                 thread.join();
+                if (sensorManager != null) {
+                    sensorManager.unregisterListener(this);
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             retry = false;
         }
     }
-
 
     public void addObstacle(Obstacle obstacle) {
         this.obstacles.add(obstacle);
@@ -156,6 +172,34 @@ public class GameView extends SurfaceView implements
             }
         }
         return false;
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            long currentTime = System.currentTimeMillis();
+            if ((currentTime - lastShakeTime) > 1000) { // Minimum interval between shakes
+                float x = event.values[0];
+                float y = event.values[1];
+                float z = event.values[2];
+
+                double acceleration = Math.sqrt(x * x + y * y + z * z) - SensorManager.GRAVITY_EARTH;
+                if (acceleration > SHAKE_THRESHOLD) {
+                    // Shake detected, call your method here
+                    onShake();
+                    lastShakeTime = currentTime;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // Not used, but required to implement SensorEventListener
+    }
+
+    private void onShake() {
+        this.character.jump();
     }
 
 }
