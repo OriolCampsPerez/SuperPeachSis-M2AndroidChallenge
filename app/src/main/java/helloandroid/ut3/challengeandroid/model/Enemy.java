@@ -5,4 +5,6 @@ public class Enemy extends Obstacle {
         super(BASE_WIDTH, BASE_WIDTH * 3, posX, posY);
         this.color = 0xCC0000FF;
     }
+
+
 }
