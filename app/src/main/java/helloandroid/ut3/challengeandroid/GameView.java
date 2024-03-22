@@ -216,7 +216,6 @@ public class GameView extends SurfaceView implements
 
 
 
-            canvas.drawBitmap(ResourceFetcher.getBackgroundBitmap(getContext()), null, new Rect(0, 0, (int) screenWidth, (int) screenHeight), null);
             canvas.drawBitmap(character.getSprite(), null, character.getRect(), null);
 
             for (Obstacle obstacle : obstacles) {
