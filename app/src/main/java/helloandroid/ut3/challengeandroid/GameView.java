@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -16,6 +17,7 @@ import helloandroid.ut3.challengeandroid.model.GameCharacter;
 import helloandroid.ut3.challengeandroid.model.Ghost;
 import helloandroid.ut3.challengeandroid.model.Obstacle;
 import helloandroid.ut3.challengeandroid.model.Wall;
+import helloandroid.ut3.challengeandroid.utils.ResourceFetcher;
 
 public class GameView extends SurfaceView implements
         SurfaceHolder.Callback {
@@ -56,14 +58,19 @@ public class GameView extends SurfaceView implements
             canvas.drawColor(Color.GRAY);
             Paint paint = new Paint();
             paint.setColor(Color.GREEN);
-            canvas.drawRect(0, (float) ((screenHeight * groundYLevel) + (Asset.BASE_WIDTH/2)), (float) screenWidth,
+            canvas.drawRect(0, (float) ((screenHeight * groundYLevel) + (Asset.BASE_WIDTH / 2)), (float) screenWidth,
                     (float) screenHeight, paint);
+            Rect rectTopBackground = new Rect(0, 0, (int) screenWidth, (int) (screenHeight * groundYLevel + (Asset.BASE_WIDTH / 2)));
+            Rect rectBotBackground = new Rect(0, (int) ((screenHeight * groundYLevel) + (Asset.BASE_WIDTH / 2)), (int) screenWidth, (int) screenHeight);
+            canvas.drawBitmap(ResourceFetcher.getBackgroundBitmap(getContext()), null, rectTopBackground, null);
+            canvas.drawRect(rectBotBackground, paint);
+
             paint.setColor(character.color);
             canvas.drawRect(character.getRect(), paint);
             for (Obstacle obstacle : obstacles) {
                 paint = new Paint();
                 paint.setColor(obstacle.color);
-                canvas.drawRect(obstacle.getRect(), paint);
+                canvas.drawBitmap(obstacle.getSprite(), null, obstacle.getRect(), paint);
             }
         }
     }
@@ -96,7 +103,7 @@ public class GameView extends SurfaceView implements
         this.screenWidth = getHolder().getSurfaceFrame().width();
         this.screenHeight = getHolder().getSurfaceFrame().height();
         character = new GameCharacter((int) (this.screenWidth * this.characterXLevel),
-                (int) (this.screenHeight * this.groundYLevel));
+                (int) (this.screenHeight * this.groundYLevel), ResourceFetcher.getGameCharacterBitmap(getContext()));
         thread.setRunning(true);
         thread.start();
     }
@@ -127,11 +134,11 @@ public class GameView extends SurfaceView implements
         int screenWidthObstacle = (int) (screenWidth * 1.1);
         int screenHeightObstacle = (int) (screenHeight * groundYLevel);
         if (randomNumber < 0.33) {
-            this.addObstacle(new Wall(screenWidthObstacle, screenHeightObstacle));
+            this.addObstacle(new Wall(screenWidthObstacle, screenHeightObstacle, ResourceFetcher.getWallsBitmap(getContext())));
         } else if (randomNumber < 0.66) {
-            this.addObstacle(new Ghost(screenWidthObstacle, screenHeightObstacle));
+            this.addObstacle(new Ghost(screenWidthObstacle, screenHeightObstacle, ResourceFetcher.getGhostsBitmap(getContext())));
         } else {
-            this.addObstacle(new Enemy(screenWidthObstacle, screenHeightObstacle));
+            this.addObstacle(new Enemy(screenWidthObstacle, screenHeightObstacle, ResourceFetcher.getEnemiesBitmap(getContext())));
         }
     }
 
