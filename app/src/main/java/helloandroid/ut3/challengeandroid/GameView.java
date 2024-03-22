@@ -4,32 +4,35 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 
-import androidx.annotation.NonNull;
+import java.util.ArrayList;
+
+import helloandroid.ut3.challengeandroid.model.GameCharacter;
+import helloandroid.ut3.challengeandroid.model.Obstacle;
 
 public class GameView extends SurfaceView implements
         SurfaceHolder.Callback {
+    private final double groundYLevel = 0.6;
+    private final double characterXLevel = 0.2;
     private GameThread thread;
-
-    private int x=0;
-
+    private GameCharacter character;
+    private double screenWidth;
+    private double screenHeight;
+    private ArrayList<Obstacle> obstacles = new ArrayList<>();
     private boolean running = false;
 
     public GameView(Context context) {
         super(context);
-
-
         getHolder().addCallback(this);
         thread = new GameThread(getHolder(), this);
+
         setFocusable(true);
     }
+
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width,
-                               int height) {
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
     }
 
     @Override
@@ -38,33 +41,33 @@ public class GameView extends SurfaceView implements
         if (canvas != null) {
             canvas.drawColor(Color.WHITE);
             Paint paint = new Paint();
-            paint.setColor(Color.rgb(250, 0, 0));
-            canvas.drawRect(x, 100, x+100, 200, paint);
+            paint.setColor(character.color);
+            canvas.drawRect(character.getRect(), paint);
+            for (Obstacle obstacle : obstacles) {
+                paint = new Paint();
+                paint.setColor(obstacle.color);
+                canvas.drawRect(obstacle.getRect(), paint);
+            }
         }
     }
 
 
-
-
     public void update() {
-
-        x = (x + 100) ;
-
-        if(running) {
-            try {
-                Thread.sleep(600);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            Thread.sleep(100);
+            obstacles.forEach(Obstacle::update);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        running = true;
-
-
     }
 
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        this.screenWidth = getHolder().getSurfaceFrame().width();
+        this.screenHeight = getHolder().getSurfaceFrame().height();
+        character = new GameCharacter((int) (this.screenWidth * this.characterXLevel),
+                (int) (this.screenHeight * this.groundYLevel));
         thread.setRunning(true);
         thread.start();
     }
