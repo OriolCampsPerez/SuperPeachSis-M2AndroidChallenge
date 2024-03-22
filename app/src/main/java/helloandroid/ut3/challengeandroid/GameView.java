@@ -44,6 +44,8 @@ public class GameView extends SurfaceView implements
     private int randomIntervalGenerated = 20;
 
     private int count = 0;
+
+    private int countForAddObstacle = 0;
     private ArrayList<Obstacle> obstacles = new ArrayList<>();
 
     private boolean isDark = false;
@@ -86,11 +88,20 @@ public class GameView extends SurfaceView implements
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
     }
 
+    public void drawScore(Canvas canvas) {
+        Paint paint = new Paint();
+        paint.setColor(Color.BLACK);
+        paint.setTextSize(50);
+        paint.setFakeBoldText(true);
+        canvas.drawText("Score: " + this.count, 50, 100, paint);
+    }
+
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
         if (canvas != null) {
             canvas.drawColor(Color.GRAY);
+            drawScore(canvas);
             Paint paint = new Paint();
             paint.setColor(Color.GREEN);
             canvas.drawRect(0, (float) ((screenHeight * groundYLevel) - (Asset.BASE_WIDTH / 2)),
@@ -112,13 +123,20 @@ public class GameView extends SurfaceView implements
     public void update() {
         try {
             Thread.sleep(30);
+            this.countForAddObstacle++;
             this.count++;
-            ArrayList<Obstacle> obstaclesToRemove = new ArrayList<>();
-            if (this.count % this.randomIntervalGenerated == 0) {
+            ArrayList<Obstacle> obstaclesInScreen = new ArrayList<>();
+            for (Obstacle obstacle : this.obstacles) {
+                if (obstacle.getRect().right > 0) {
+                    obstaclesInScreen.add(obstacle);
+                }
+            }
+            this.obstacles = obstaclesInScreen;
+            if (this.countForAddObstacle % this.randomIntervalGenerated == 0) {
                 this.updateObstacles();
                 this.updateRandomIntervalGenerated();
                 this.updateSpeed();
-                this.count = 0;
+                this.countForAddObstacle = 0;
                 this.nbEnemy++;
             }
                 if (this.isColliding()) {
