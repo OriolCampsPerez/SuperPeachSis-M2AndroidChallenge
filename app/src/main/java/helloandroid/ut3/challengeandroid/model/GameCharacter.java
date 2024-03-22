@@ -1,5 +1,7 @@
 package helloandroid.ut3.challengeandroid.model;
 
+import android.graphics.Color;
+
 public class GameCharacter extends Asset {
 
     private static final double JUMP_AMPLITUDE = 30; // Adjust jump amplitude as needed
@@ -8,6 +10,7 @@ public class GameCharacter extends Asset {
 
     private static int BASE_GROUND_Y = 0;
     private long jumpStartTime;
+
     private boolean isJumping;
 
     public GameCharacter(int posX, int posY) {
@@ -18,7 +21,7 @@ public class GameCharacter extends Asset {
 
         BASE_GROUND_Y = posY;
 
-        this.color = 0xFF0000FF;
+        this.color = Color.BLACK;
         this.jumpStartTime = 0;
         this.isJumping = false;
     }
