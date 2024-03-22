@@ -13,7 +13,7 @@ public abstract class Asset {
     public int color;
 
     public Rect getRect() {
-        return new Rect(this.posX, this.posY, this.posX + this.width, this.posY - this.height);
+        return new Rect(this.posX, this.posY - this.height, this.posX + this.width, this.posY);
     }
 
 }

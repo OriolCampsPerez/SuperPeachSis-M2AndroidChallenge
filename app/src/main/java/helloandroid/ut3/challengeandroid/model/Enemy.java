@@ -7,4 +7,6 @@ public class Enemy extends Obstacle {
     }
 
 
+
+
 }
