@@ -10,6 +10,10 @@ import java.util.List;
 import helloandroid.ut3.challengeandroid.R;
 
 public abstract class ResourceFetcher {
+
+    public static final int NB_RUN_SPRITES = 20;
+    public static final int NB_JUMP_SPRITES = 30;
+
     private static Bitmap convertToBitmap(int resource, Context context) {
         return BitmapFactory.decodeResource(context.getResources(), resource);
     }
@@ -85,7 +89,7 @@ public abstract class ResourceFetcher {
 
     public static List<Bitmap> getGhostsBitmap(Context context) {
         List<Bitmap> resList = new ArrayList<>();
-        resList.add(convertToBitmap(R.drawable.waterghost1_menu, context));
+        resList.add(convertToBitmap(R.drawable.waterghost1, context));
         resList.add(convertToBitmap(R.drawable.waterghost2, context));
         resList.add(convertToBitmap(R.drawable.waterghost3, context));
         resList.add(convertToBitmap(R.drawable.waterghost4, context));

@@ -1,5 +1,8 @@
 package helloandroid.ut3.challengeandroid.model;
 
+import static helloandroid.ut3.challengeandroid.utils.ResourceFetcher.NB_JUMP_SPRITES;
+import static helloandroid.ut3.challengeandroid.utils.ResourceFetcher.NB_RUN_SPRITES;
+
 import android.graphics.Bitmap;
 
 import java.util.List;
@@ -8,26 +11,32 @@ import android.graphics.Color;
 
 public class GameCharacter extends Asset {
     public Bitmap sprite;
-    private static final double JUMP_AMPLITUDE = 30; // Adjust jump amplitude as needed
-    private static final double JUMP_FREQUENCY = 2.0; // Adjust jump frequency as needed
-    private static final int JUMP_DURATION = 4600; // Adjust jump duration as needed
 
     private static int BASE_GROUND_Y = 0;
-    private long jumpStartTime;
+
 
     private boolean isJumping;
+    private int tempoFrameI = 0;
 
-    public GameCharacter(int posX, int posY, List<Bitmap> srcList) {
-        super(srcList);
+    public List<Bitmap> srcJumpList;
+
+    private final int basePosY;
+    private final int MAX_JUMP_HEIGHT = 350;
+
+    public GameCharacter(int posX, int posY, List<Bitmap> runSprites, List<Bitmap> jumpSprites) {
+        super(runSprites);
+        this.srcJumpList = jumpSprites;
+
         this.posX = posX;
         this.posY = posY;
-        this.width = BASE_WIDTH-40;
+        this.basePosY = posY;
+        this.width = BASE_WIDTH - 40;
         this.height = BASE_WIDTH;
 
         BASE_GROUND_Y = posY;
 
         this.color = Color.BLACK;
-        this.jumpStartTime = 0;
+        //this.jumpStartTime = 0;
         this.isJumping = false;
 
         this.sprite = srcList.get(0);
@@ -42,37 +51,25 @@ public class GameCharacter extends Asset {
 
     public void jump() {
         if (!isJumping) {
-            jumpStartTime = System.currentTimeMillis();
+            //jumpStartTime = System.currentTimeMillis();
             isJumping = true;
+            tempoFrameI = 0;
+            this.sprite = srcJumpList.get(tempoFrameI);
         }
     }
 
     public void update() {
-        if (isJumping) {
-            long elapsedTime = System.currentTimeMillis() - jumpStartTime;
-            if (elapsedTime < JUMP_DURATION / 2) {
-                // Calculate jump progress based on elapsed time
-                double progress = (double) elapsedTime / JUMP_DURATION;
-                // Use quadratic curve for smooth jump effect
-                int jumpHeight = (int) (JUMP_AMPLITUDE * Math.sin(2 * Math.PI * JUMP_FREQUENCY * progress));
-                this.posY = (int) (this.posY - jumpHeight);
-            } else if (elapsedTime < JUMP_DURATION) {
-                // Jump completed, reset jump state
-                double progress = (double) elapsedTime / JUMP_DURATION;
-                // Use quadratic curve for smooth jump effect
-                int jumpHeight = (int) (JUMP_AMPLITUDE * Math.sin(2 * Math.PI * JUMP_FREQUENCY * progress));
-                if (this.posY + jumpHeight < BASE_GROUND_Y) {
-                    this.posY = (int) (this.posY + jumpHeight);
-                } else {
-                    jumpStartTime = 0;
-                    isJumping = false;
-                    this.posY = BASE_GROUND_Y;
-                }
-
+        tempoFrameI++;
+        if (!isJumping) { // Running
+            this.sprite = srcList.get(tempoFrameI % NB_RUN_SPRITES);
+        } else { // Jumping
+            this.sprite = srcJumpList.get(tempoFrameI % NB_JUMP_SPRITES);
+            if ((int)(tempoFrameI) < NB_JUMP_SPRITES) {
+                // Jumping Y position update (parabolic movement)
+                posY = basePosY - (int) (MAX_JUMP_HEIGHT * Math.sin(Math.PI * tempoFrameI / NB_JUMP_SPRITES));
             } else {
-                jumpStartTime = 0;
+                posY = basePosY;
                 isJumping = false;
-                this.posY = BASE_GROUND_Y;
             }
         }
     }

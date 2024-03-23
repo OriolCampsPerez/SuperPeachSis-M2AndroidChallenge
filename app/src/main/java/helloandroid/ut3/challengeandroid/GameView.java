@@ -30,7 +30,8 @@ import helloandroid.ut3.challengeandroid.utils.ResourceFetcher;
 
 public class GameView extends SurfaceView implements
         SurfaceHolder.Callback, SensorEventListener {
-    private static final float SHAKE_THRESHOLD = 3.0f; // Adjust this threshold as needed
+    public static final int GAME_SPEED = 17; // 58,82 fps
+    private static final float SHAKE_THRESHOLD = 2.0f; // Adjust this threshold as needed
     private final double groundYLevel = 0.85;
     private final double characterXLevel = 0.15;
     private GameThread thread;
@@ -49,14 +50,12 @@ public class GameView extends SurfaceView implements
     private MediaPlayer gameOver;
 
     private int gameStage = 0;
-    Paint linePaint ;
+    Paint linePaint;
 
 
     private int nbEnemy = 0;
 
     private Paint paint;
-
-    private int lineAlpha = 254;
 
     private PointF startPoint = new PointF();
 
@@ -78,6 +77,8 @@ public class GameView extends SurfaceView implements
     public GameView(Context context) {
         super(context);
         getHolder().addCallback(this);
+        // set it transparent
+        setZOrderOnTop(true);
         thread = new GameThread(getHolder(), this);
         setFocusable(true);
         linePaint = new Paint();
@@ -90,12 +91,9 @@ public class GameView extends SurfaceView implements
 
         gameOver = MediaPlayer.create(this.getContext(), R.raw.gameover);
 
-        musicPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                musicPlayer.seekTo(0); // Reset to start of the audio file
-                musicPlayer.start(); // Start playback again
-            }
+        musicPlayer.setOnCompletionListener(mp -> {
+            musicPlayer.seekTo(0); // Reset to start of the audio file
+            musicPlayer.start(); // Start playback again
         });
 
 
@@ -149,8 +147,6 @@ public class GameView extends SurfaceView implements
     }
 
 
-
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         int action = event.getActionMasked();
@@ -199,20 +195,14 @@ public class GameView extends SurfaceView implements
     public void draw(Canvas canvas) {
         super.draw(canvas);
         if (canvas != null) {
-
-
-            canvas.drawColor(Color.rgb(50,50,130));
+            canvas.drawColor(Color.rgb(50, 50, 130));
             drawScore(canvas);
             Paint paint = new Paint();
             paint.setColor(Color.GREEN);
 
-            // canvas.drawLine(startPoint.x, startPoint.y, endPoint.x, endPoint.y, linePaint);
-
             canvas.drawRect(0, (float) ((screenHeight * groundYLevel) - (Asset.BASE_WIDTH / 2)),
                     (float) screenWidth,
                     (float) screenHeight, paint);
-
-
 
             canvas.drawBitmap(character.getSprite(), null, character.getRect(), null);
 
@@ -221,7 +211,6 @@ public class GameView extends SurfaceView implements
                     continue;
                 }
                 canvas.drawBitmap(obstacle.getSprite(), null, obstacle.getRect(), null);
-                //canvas.drawRect(obstacle.getRect(), paint);
             }
 
             for (Cloud cloud : myClouds) {
@@ -233,7 +222,7 @@ public class GameView extends SurfaceView implements
 
     public void update() {
         try {
-            Thread.sleep(30);
+            Thread.sleep(GAME_SPEED);
             this.countForAddObstacle++;
             this.count++;
             ArrayList<Obstacle> obstaclesInScreen = new ArrayList<>();
@@ -274,7 +263,7 @@ public class GameView extends SurfaceView implements
         this.screenWidth = getHolder().getSurfaceFrame().width();
         this.screenHeight = getHolder().getSurfaceFrame().height();
         character = new GameCharacter((int) (this.screenWidth * this.characterXLevel),
-                (int) (this.screenHeight * this.groundYLevel), ResourceFetcher.getGameCharacterJumpBitmap(getContext()));
+                (int) (this.screenHeight * this.groundYLevel), ResourceFetcher.getGameCharacterRunBitmap(getContext()), ResourceFetcher.getGameCharacterJumpBitmap(getContext()));
         thread.setRunning(true);
         thread.start();
         if (accelerometer != null) {
@@ -302,7 +291,6 @@ public class GameView extends SurfaceView implements
     public void addObstacle(Obstacle obstacle) {
         this.obstacles.add(obstacle);
     }
-
 
 
     public void updateObstacles() {
@@ -338,8 +326,6 @@ public class GameView extends SurfaceView implements
         }
 
     }
-
-
 
 
     public void updateRandomIntervalGenerated() {
@@ -393,7 +379,7 @@ public class GameView extends SurfaceView implements
     private void onShake() {
         this.character.jump();
     }
-    
+
     public void stopGame() {
         thread.setRunning(false);
         musicPlayer.stop();
