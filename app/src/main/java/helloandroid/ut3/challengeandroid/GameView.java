@@ -80,8 +80,6 @@ public class GameView extends SurfaceView implements
     public GameView(Context context) {
         super(context);
         getHolder().addCallback(this);
-        // set it transparent
-        setZOrderOnTop(true);
         thread = new GameThread(getHolder(), this);
         setFocusable(true);
         linePaint = new Paint();
@@ -198,10 +196,12 @@ public class GameView extends SurfaceView implements
     public void draw(Canvas canvas) {
         super.draw(canvas);
         if (canvas != null) {
+            canvas.drawBitmap(background, null, new Rect(0, 0, (int) screenWidth, (int) screenHeight), null);
+
             drawScore(canvas);
 
-            canvas.drawBitmap(background, null, new Rect(0, 0, (int) screenWidth, (int) screenHeight), null);
             canvas.drawBitmap(character.getSprite(), null, character.getRect(), null);
+            canvas.drawCircle(character.getRect().centerX(), character.getRect().centerY(), (float) character.height / 2, linePaint);
 
             for (Obstacle obstacle : obstacles) {
                 if (!obstacle.isVisible()) {
@@ -381,5 +381,6 @@ public class GameView extends SurfaceView implements
         thread.setRunning(false);
         musicPlayer.stop();
         gameOver.stop();
+        stopSound();
     }
 }

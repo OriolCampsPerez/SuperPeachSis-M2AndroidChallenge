@@ -11,15 +11,9 @@ import android.graphics.Color;
 
 public class GameCharacter extends Asset {
     public Bitmap sprite;
-
-    private static int BASE_GROUND_Y = 0;
-
-
     private boolean isJumping;
     private int tempoFrameI = 0;
-
     public List<Bitmap> srcJumpList;
-
     private final int basePosY;
     private final int MAX_JUMP_HEIGHT = 350;
 
@@ -29,14 +23,12 @@ public class GameCharacter extends Asset {
 
         this.posX = posX;
         this.posY = posY;
-        this.basePosY = posY;
         this.width = BASE_WIDTH - 40;
         this.height = BASE_WIDTH;
 
-        BASE_GROUND_Y = posY;
+        this.basePosY = posY;
 
         this.color = Color.BLACK;
-        //this.jumpStartTime = 0;
         this.isJumping = false;
 
         this.sprite = srcList.get(0);
@@ -51,7 +43,6 @@ public class GameCharacter extends Asset {
 
     public void jump() {
         if (!isJumping) {
-            //jumpStartTime = System.currentTimeMillis();
             isJumping = true;
             tempoFrameI = 0;
             this.sprite = srcJumpList.get(tempoFrameI);
@@ -64,8 +55,7 @@ public class GameCharacter extends Asset {
             this.sprite = srcList.get(tempoFrameI % NB_RUN_SPRITES);
         } else { // Jumping
             this.sprite = srcJumpList.get(tempoFrameI % NB_JUMP_SPRITES);
-            if ((int)(tempoFrameI) < NB_JUMP_SPRITES) {
-                // Jumping Y position update (parabolic movement)
+            if ((int) (tempoFrameI) < NB_JUMP_SPRITES) {
                 posY = basePosY - (int) (MAX_JUMP_HEIGHT * Math.sin(Math.PI * tempoFrameI / NB_JUMP_SPRITES));
             } else {
                 posY = basePosY;

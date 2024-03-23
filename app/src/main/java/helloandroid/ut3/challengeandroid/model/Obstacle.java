@@ -23,6 +23,7 @@ public abstract class Obstacle extends Asset {
         Random rand = new Random();
         this.sprite = srcList.get(rand.nextInt(srcList.size()));
     }
+
     public void update() {
         this.posX -= speed;
     }

@@ -32,6 +32,7 @@ public abstract class Asset {
 
     /**
      * Used to display the asset sprite on the screen
+     *
      * @return the Bitmap Sprite
      */
     public abstract Bitmap getSprite();
