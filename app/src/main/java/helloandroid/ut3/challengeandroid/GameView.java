@@ -393,5 +393,10 @@ public class GameView extends SurfaceView implements
     private void onShake() {
         this.character.jump();
     }
-
+    
+    public void stopGame() {
+        thread.setRunning(false);
+        musicPlayer.stop();
+        gameOver.stop();
+    }
 }
