@@ -49,6 +49,8 @@ public class GameView extends SurfaceView implements
 
     private MediaPlayer gameOver;
 
+    private MediaPlayer jumpSound;
+
     private int gameStage = 0;
     Paint linePaint;
 
@@ -84,6 +86,7 @@ public class GameView extends SurfaceView implements
         linePaint = new Paint();
 
         swordMediaPlayer = MediaPlayer.create(this.getContext(), R.raw.sword_sound);
+        jumpSound = MediaPlayer.create(this.getContext(), R.raw.jump_sound);
 
         musicPlayer = MediaPlayer.create(this.getContext(), R.raw.lade);
         musicPlayer.start();
@@ -374,6 +377,7 @@ public class GameView extends SurfaceView implements
     }
 
     private void onShake() {
+        jumpSound.start();
         this.character.jump();
     }
 
