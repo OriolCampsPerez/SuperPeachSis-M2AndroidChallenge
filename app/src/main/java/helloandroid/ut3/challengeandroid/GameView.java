@@ -2,6 +2,7 @@ package helloandroid.ut3.challengeandroid;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -74,6 +75,8 @@ public class GameView extends SurfaceView implements
 
     private boolean isDark = false;
 
+    private Bitmap background;
+
     public GameView(Context context) {
         super(context);
         getHolder().addCallback(this);
@@ -127,6 +130,8 @@ public class GameView extends SurfaceView implements
         };
         sensorManager.registerListener(lightSensorListener, lightSensor,
                 SensorManager.SENSOR_DELAY_NORMAL);
+
+        background = ResourceFetcher.getBackgroundBitmap(context);
     }
 
     @Override
@@ -145,7 +150,6 @@ public class GameView extends SurfaceView implements
             swordMediaPlayer.stop();
         }
     }
-
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -169,7 +173,6 @@ public class GameView extends SurfaceView implements
         }
         return true;
     }
-
 
     private void markObstacleForDestruction() {
         for (Obstacle obstacle : obstacles) {
@@ -195,15 +198,9 @@ public class GameView extends SurfaceView implements
     public void draw(Canvas canvas) {
         super.draw(canvas);
         if (canvas != null) {
-            canvas.drawColor(Color.rgb(50, 50, 130));
             drawScore(canvas);
-            Paint paint = new Paint();
-            paint.setColor(Color.GREEN);
 
-            canvas.drawRect(0, (float) ((screenHeight * groundYLevel) - (Asset.BASE_WIDTH / 2)),
-                    (float) screenWidth,
-                    (float) screenHeight, paint);
-
+            canvas.drawBitmap(background, null, new Rect(0, 0, (int) screenWidth, (int) screenHeight), null);
             canvas.drawBitmap(character.getSprite(), null, character.getRect(), null);
 
             for (Obstacle obstacle : obstacles) {
