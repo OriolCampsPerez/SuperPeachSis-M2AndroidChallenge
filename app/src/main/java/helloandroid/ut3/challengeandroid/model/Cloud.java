@@ -17,7 +17,7 @@ public class Cloud extends Asset{
         this.width = BASE_WIDTH;
         this.height = BASE_WIDTH;
         this.posX = posX;
-        this.posY = posY;
+        this.posY = posY+60;
         this.color = Color.rgb(100,100,100);
 
         Random rand = new Random();
