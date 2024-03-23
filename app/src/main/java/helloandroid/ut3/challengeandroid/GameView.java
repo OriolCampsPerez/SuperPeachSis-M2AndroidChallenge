@@ -221,6 +221,7 @@ public class GameView extends SurfaceView implements
                     continue;
                 }
                 canvas.drawBitmap(obstacle.getSprite(), null, obstacle.getRect(), null);
+                //canvas.drawRect(obstacle.getRect(), paint);
             }
 
             for (Cloud cloud : myClouds) {
@@ -273,7 +274,7 @@ public class GameView extends SurfaceView implements
         this.screenWidth = getHolder().getSurfaceFrame().width();
         this.screenHeight = getHolder().getSurfaceFrame().height();
         character = new GameCharacter((int) (this.screenWidth * this.characterXLevel),
-                (int) (this.screenHeight * this.groundYLevel), ResourceFetcher.getGameCharacterBitmap(getContext()));
+                (int) (this.screenHeight * this.groundYLevel), ResourceFetcher.getGameCharacterJumpBitmap(getContext()));
         thread.setRunning(true);
         thread.start();
         if (accelerometer != null) {
