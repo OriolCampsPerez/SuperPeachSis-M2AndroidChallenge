@@ -1,7 +1,10 @@
 package helloandroid.ut3.challengeandroid.model;
 
 import android.graphics.Bitmap;
+import android.graphics.PointF;
 import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Region;
 
 import java.util.List;
 
@@ -28,6 +31,10 @@ public abstract class Asset {
      */
     public Rect getRect() {
         return new Rect(this.posX, this.posY - this.height, this.posX + this.width, this.posY);
+    }
+
+    public HitBox getHitBox() {
+        return new HitBox(getRect(), (float) this.width / 2);
     }
 
     /**

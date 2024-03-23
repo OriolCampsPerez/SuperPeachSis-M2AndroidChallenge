@@ -20,7 +20,6 @@ import android.view.SurfaceView;
 import java.util.ArrayList;
 import java.util.Random;
 
-import helloandroid.ut3.challengeandroid.model.Asset;
 import helloandroid.ut3.challengeandroid.model.Cloud;
 import helloandroid.ut3.challengeandroid.model.Enemy;
 import helloandroid.ut3.challengeandroid.model.GameCharacter;
@@ -201,13 +200,14 @@ public class GameView extends SurfaceView implements
             drawScore(canvas);
 
             canvas.drawBitmap(character.getSprite(), null, character.getRect(), null);
-            canvas.drawCircle(character.getRect().centerX(), character.getRect().centerY(), (float) character.height / 2, linePaint);
+            //character.getHitBox().draw(canvas);
 
             for (Obstacle obstacle : obstacles) {
                 if (!obstacle.isVisible()) {
                     continue;
                 }
                 canvas.drawBitmap(obstacle.getSprite(), null, obstacle.getRect(), null);
+                //obstacle.getHitBox().draw(canvas);
             }
 
             for (Cloud cloud : myClouds) {
@@ -224,7 +224,7 @@ public class GameView extends SurfaceView implements
             this.count++;
             ArrayList<Obstacle> obstaclesInScreen = new ArrayList<>();
             for (Obstacle obstacle : this.obstacles) {
-                if (obstacle.getRect().right > 0) {
+                if (obstacle.getHitBox().rect.right > 0) {
                     obstaclesInScreen.add(obstacle);
                 }
             }

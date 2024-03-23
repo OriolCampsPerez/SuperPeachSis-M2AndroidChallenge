@@ -38,7 +38,7 @@ public class GameCharacter extends Asset {
         if (!obstacle.isVisible()) {
             return false;
         }
-        return this.getRect().intersect(obstacle.getRect());
+        return this.getHitBox().intersect(obstacle.getHitBox());
     }
 
     public void jump() {
